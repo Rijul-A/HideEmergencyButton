@@ -4,6 +4,7 @@ import android.os.Build;
 import android.view.View;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
@@ -33,13 +34,7 @@ public class XposedMod implements IXposedHookLoadPackage {
     }
 
     private void hookMethod(String keyguardPackageName, XC_LoadPackage.LoadPackageParam lpparam) {
-        try {
-            XposedHelpers.findAndHookMethod(keyguardPackageName + ".EmergencyButton", lpparam.classLoader,
-                    "updateEmergencyCallButton", updateEmergencyCallButtonHook);
-        }
-        catch (NoSuchMethodError e) {
-            XposedHelpers.findAndHookMethod(keyguardPackageName + ".EmergencyButton", lpparam.classLoader,
-                    "updateEmergencyCallButton", int.class, updateEmergencyCallButtonHook);
-        }
+        Class<?> emergencyButton = XposedHelpers.findClass(keyguardPackageName + ".EmergencyButton", lpparam.classLoader);
+        XposedBridge.hookAllMethods(emergencyButton, "updateEmergencyCallButton", updateEmergencyCallButtonHook);
     }
 }
